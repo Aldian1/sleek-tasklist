@@ -48,11 +48,22 @@ const TodoList = () => {
     setTasks(tasks.map((task) => (task.id === taskId ? { ...task, subtasks: task.subtasks.filter((subtask) => subtask.id !== subtaskId) } : task)));
   };
 
+  const handleKeyPress = (e, callback) => {
+    if (e.key === "Enter") {
+      callback();
+    }
+  };
+
   return (
     <Container centerContent maxW="container.md" py={8}>
       <VStack spacing={4} width="100%">
         <HStack width="100%">
-          <Input placeholder="Add a new task" value={taskInput} onChange={(e) => setTaskInput(e.target.value)} />
+          <Input
+            placeholder="Add a new task"
+            value={taskInput}
+            onChange={(e) => setTaskInput(e.target.value)}
+            onKeyDown={(e) => handleKeyPress(e, addTask)}
+          />
           <IconButton aria-label="Add Task" icon={<FaPlus />} onClick={addTask} />
         </HStack>
         {tasks.map((task) => (
@@ -68,7 +79,12 @@ const TodoList = () => {
             </HStack>
             {task.id === selectedTask && (
               <HStack mt={2}>
-                <Input placeholder="Add a subtask" value={subtaskInput} onChange={(e) => setSubtaskInput(e.target.value)} />
+                <Input
+                  placeholder="Add a subtask"
+                  value={subtaskInput}
+                  onChange={(e) => setSubtaskInput(e.target.value)}
+                  onKeyDown={(e) => handleKeyPress(e, () => addSubtask(task.id))}
+                />
                 <Button onClick={() => addSubtask(task.id)}>Add</Button>
               </HStack>
             )}
