@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, VStack, HStack, Input, Button, Checkbox, Text, IconButton, Box } from "@chakra-ui/react";
+import { Container, VStack, HStack, Input, Button, Checkbox, Text, IconButton, Box, Progress } from "@chakra-ui/react";
 import { FaPlus, FaTrash, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 const TodoList = () => {
@@ -20,7 +20,7 @@ const TodoList = () => {
       const storedTasks = JSON.parse(localStorage.getItem("tasks"));
       if (storedTasks) {
         const expanded = {};
-        storedTasks.forEach(task => {
+        storedTasks.forEach((task) => {
           expanded[task.id] = false; // Set initial expanded state to false for all tasks
         });
         return expanded;
@@ -88,16 +88,16 @@ const TodoList = () => {
     }));
   };
 
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter((task) => task.completed).length;
+  const progress = totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 100;
+
   return (
     <Container centerContent maxW="container.md" py={8}>
       <VStack spacing={4} width="100%">
+        <Progress value={progress} width="100%" mb={4} />
         <HStack width="100%">
-          <Input
-            placeholder="Add a new task"
-            value={taskInput}
-            onChange={(e) => setTaskInput(e.target.value)}
-            onKeyDown={(e) => handleKeyPress(e, addTask)}
-          />
+          <Input placeholder="Add a new task" value={taskInput} onChange={(e) => setTaskInput(e.target.value)} onKeyDown={(e) => handleKeyPress(e, addTask)} />
           <IconButton aria-label="Add Task" icon={<FaPlus />} onClick={addTask} />
         </HStack>
         {tasks.map((task) => (
@@ -114,12 +114,7 @@ const TodoList = () => {
             </HStack>
             {task.id === selectedTask && (
               <HStack mt={2}>
-                <Input
-                  placeholder="Add a subtask"
-                  value={subtaskInput}
-                  onChange={(e) => setSubtaskInput(e.target.value)}
-                  onKeyDown={(e) => handleKeyPress(e, () => addSubtask(task.id))}
-                />
+                <Input placeholder="Add a subtask" value={subtaskInput} onChange={(e) => setSubtaskInput(e.target.value)} onKeyDown={(e) => handleKeyPress(e, () => addSubtask(task.id))} />
                 <Button onClick={() => addSubtask(task.id)}>Add</Button>
               </HStack>
             )}
