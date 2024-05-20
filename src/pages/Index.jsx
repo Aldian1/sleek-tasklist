@@ -1,33 +1,57 @@
 import { useState, useEffect } from "react";
 import { Container, VStack, HStack, Input, Button, Checkbox, Text, IconButton, Box } from "@chakra-ui/react";
-import { FaPlus, FaTrash } from "react-icons/fa";
+import { FaPlus, FaTrash, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 const TodoList = () => {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState(() => {
+    try {
+      const storedTasks = JSON.parse(localStorage.getItem("tasks"));
+      return storedTasks || [];
+    } catch (error) {
+      console.error("Failed to load tasks from local storage:", error);
+      return [];
+    }
+  });
   const [taskInput, setTaskInput] = useState("");
   const [subtaskInput, setSubtaskInput] = useState("");
   const [selectedTask, setSelectedTask] = useState(null);
-
-  useEffect(() => {
-    const storedTasks = JSON.parse(localStorage.getItem("tasks"));
-    if (storedTasks) {
-      setTasks(storedTasks);
+  const [expandedTasks, setExpandedTasks] = useState(() => {
+    try {
+      const storedTasks = JSON.parse(localStorage.getItem("tasks"));
+      if (storedTasks) {
+        const expanded = {};
+        storedTasks.forEach(task => {
+          expanded[task.id] = false; // Set initial expanded state to false for all tasks
+        });
+        return expanded;
+      }
+      return {};
+    } catch (error) {
+      console.error("Failed to load tasks from local storage:", error);
+      return {};
     }
-  }, []);
+  });
 
+  // Save tasks to local storage whenever tasks state changes
   useEffect(() => {
+    console.log("Saving tasks to local storage:", tasks);
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
   const addTask = () => {
     if (taskInput.trim() === "") return;
-    setTasks([...tasks, { id: Date.now(), text: taskInput, completed: false, subtasks: [] }]);
+    const newTask = { id: Date.now(), text: taskInput, completed: false, subtasks: [] };
+    setTasks([...tasks, newTask]);
+    setExpandedTasks({ ...expandedTasks, [newTask.id]: false });
+    console.log("Added new task:", newTask);
     setTaskInput("");
   };
 
   const addSubtask = (taskId) => {
     if (subtaskInput.trim() === "") return;
-    setTasks(tasks.map((task) => (task.id === taskId ? { ...task, subtasks: [...task.subtasks, { id: Date.now(), text: subtaskInput, completed: false }] } : task)));
+    const newSubtask = { id: Date.now(), text: subtaskInput, completed: false };
+    setTasks(tasks.map((task) => (task.id === taskId ? { ...task, subtasks: [...task.subtasks, newSubtask] } : task)));
+    console.log("Added new subtask to taskId", taskId, ":", newSubtask);
     setSubtaskInput("");
     setSelectedTask(null);
   };
@@ -42,6 +66,9 @@ const TodoList = () => {
 
   const deleteTask = (taskId) => {
     setTasks(tasks.filter((task) => task.id !== taskId));
+    const newExpandedTasks = { ...expandedTasks };
+    delete newExpandedTasks[taskId];
+    setExpandedTasks(newExpandedTasks);
   };
 
   const deleteSubtask = (taskId, subtaskId) => {
@@ -52,6 +79,13 @@ const TodoList = () => {
     if (e.key === "Enter") {
       callback();
     }
+  };
+
+  const toggleExpandTask = (taskId) => {
+    setExpandedTasks((prevState) => ({
+      ...prevState,
+      [taskId]: !prevState[taskId],
+    }));
   };
 
   return (
@@ -68,13 +102,14 @@ const TodoList = () => {
         </HStack>
         {tasks.map((task) => (
           <Box key={task.id} width="100%" p={4} borderWidth={1} borderRadius="md">
-            <HStack justifyContent="space-between">
+            <HStack justifyContent="space-between" className="task-item">
               <Checkbox isChecked={task.completed} onChange={() => toggleTaskCompletion(task.id)}>
                 <Text as={task.completed ? "s" : ""}>{task.text}</Text>
               </Checkbox>
               <HStack>
                 <IconButton aria-label="Add Subtask" icon={<FaPlus />} size="sm" onClick={() => setSelectedTask(task.id)} />
-                <IconButton aria-label="Delete Task" icon={<FaTrash />} size="sm" onClick={() => deleteTask(task.id)} />
+                <IconButton aria-label="Toggle Subtasks" icon={expandedTasks[task.id] ? <FaChevronUp /> : <FaChevronDown />} size="sm" onClick={() => toggleExpandTask(task.id)} />
+                <IconButton aria-label="Delete Task" icon={<FaTrash />} size="sm" className="delete-button" onClick={() => deleteTask(task.id)} />
               </HStack>
             </HStack>
             {task.id === selectedTask && (
@@ -88,19 +123,30 @@ const TodoList = () => {
                 <Button onClick={() => addSubtask(task.id)}>Add</Button>
               </HStack>
             )}
-            <VStack mt={2} pl={4} alignItems="start">
-              {task.subtasks.map((subtask) => (
-                <HStack key={subtask.id} justifyContent="space-between" width="100%">
-                  <Checkbox isChecked={subtask.completed} onChange={() => toggleSubtaskCompletion(task.id, subtask.id)}>
-                    <Text as={subtask.completed ? "s" : ""}>{subtask.text}</Text>
-                  </Checkbox>
-                  <IconButton aria-label="Delete Subtask" icon={<FaTrash />} size="sm" onClick={() => deleteSubtask(task.id, subtask.id)} />
-                </HStack>
-              ))}
-            </VStack>
+            {expandedTasks[task.id] && (
+              <VStack mt={2} pl={4} alignItems="start">
+                {task.subtasks.map((subtask) => (
+                  <HStack key={subtask.id} justifyContent="space-between" width="100%" className="subtask-item">
+                    <Checkbox isChecked={subtask.completed} onChange={() => toggleSubtaskCompletion(task.id, subtask.id)}>
+                      <Text as={subtask.completed ? "s" : ""}>{subtask.text}</Text>
+                    </Checkbox>
+                    <IconButton aria-label="Delete Subtask" icon={<FaTrash />} size="sm" className="delete-button" onClick={() => deleteSubtask(task.id, subtask.id)} />
+                  </HStack>
+                ))}
+              </VStack>
+            )}
           </Box>
         ))}
       </VStack>
+      <style>{`
+        .task-item:hover .delete-button,
+        .subtask-item:hover .delete-button {
+          visibility: visible;
+        }
+        .delete-button {
+          visibility: hidden;
+        }
+      `}</style>
     </Container>
   );
 };
