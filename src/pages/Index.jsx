@@ -121,11 +121,12 @@ const TodoList = () => {
                 {editingTaskId === task.id ? (
                   <Input value={task.text} onChange={(e) => editTask(task.id, e.target.value)} onBlur={() => setEditingTaskId(null)} autoFocus size="sm" />
                 ) : (
-                  <Checkbox isChecked={task.completed} onChange={() => toggleTaskCompletion(task.id)}>
-                    <Text as={task.completed ? "s" : ""} onDoubleClick={() => setEditingTaskId(task.id)}>
+                  <Box display="flex" alignItems="center" flex="1">
+                    <Checkbox isChecked={task.completed} onChange={() => toggleTaskCompletion(task.id)} />
+                    <Text as={task.completed ? "s" : ""} onDoubleClick={() => setEditingTaskId(task.id)} style={{ flex: 1, cursor: "pointer" }}>
                       {task.text}
                     </Text>
-                  </Checkbox>
+                  </Box>
                 )}
                 <HStack>
                   <IconButton aria-label="Add Subtask" icon={<FaPlus />} size="sm" onClick={() => setSelectedTask(task.id)} />
@@ -146,11 +147,12 @@ const TodoList = () => {
                       {editingSubtaskId === subtask.id ? (
                         <Input value={subtask.text} onChange={(e) => editSubtask(task.id, subtask.id, e.target.value)} onBlur={() => setEditingSubtaskId(null)} autoFocus size="sm" />
                       ) : (
-                        <Checkbox isChecked={subtask.completed} onChange={() => toggleSubtaskCompletion(task.id, subtask.id)}>
-                          <Text as={subtask.completed ? "s" : ""} onDoubleClick={() => setEditingSubtaskId(subtask.id)}>
+                        <Box display="flex" alignItems="center" flex="1">
+                          <Checkbox isChecked={subtask.completed} onChange={() => toggleSubtaskCompletion(task.id, subtask.id)} />
+                          <Text as={subtask.completed ? "s" : ""} onDoubleClick={() => setEditingSubtaskId(subtask.id)} style={{ flex: 1, cursor: "pointer" }}>
                             {subtask.text}
                           </Text>
-                        </Checkbox>
+                        </Box>
                       )}
                       <IconButton aria-label="Delete Subtask" icon={<FaTrash />} size="sm" className="delete-button" onClick={() => deleteSubtask(task.id, subtask.id)} />
                     </HStack>
@@ -167,6 +169,17 @@ const TodoList = () => {
         }
         .delete-button {
           visibility: hidden;
+        }
+      .task-item:hover .delete-button,
+        .subtask-item:hover .delete-button {
+          visibility: visible;
+        }
+        .delete-button {
+          visibility: hidden;
+        }
+        .task-item:hover .chakra-text,
+        .subtask-item:hover .chakra-text {
+          border: 1px solid lightgrey;
         }
       `}</style>
     </Container>
