@@ -119,10 +119,10 @@ const TodoList = () => {
             <Box key={task.id} width="100%" p={4} borderWidth={1} borderRadius="md">
               <HStack justifyContent="space-between" className="task-item">
                 {editingTaskId === task.id ? (
-                  <Input value={task.text} onChange={(e) => editTask(task.id, e.target.value)} onBlur={() => setEditingTaskId(null)} autoFocus size="sm" />
+                  <Input value={task.text} onChange={(e) => editTask(task.id, e.target.value)} onKeyDown={(e) => e.key === "Enter" && setEditingTaskId(null)} autoFocus size="sm" />
                 ) : (
                   <Box display="flex" alignItems="center" flex="1">
-                    <Checkbox isChecked={task.completed} onChange={() => toggleTaskCompletion(task.id)} />
+                    <Checkbox isChecked={task.completed} onChange={() => toggleTaskCompletion(task.id)} mr={2} />
                     <Text as={task.completed ? "s" : ""} onDoubleClick={() => setEditingTaskId(task.id)} style={{ flex: 1, cursor: "pointer" }}>
                       {task.text}
                     </Text>
@@ -145,7 +145,7 @@ const TodoList = () => {
                   {task.subtasks.map((subtask) => (
                     <HStack key={subtask.id} justifyContent="space-between" width="100%" className="subtask-item">
                       {editingSubtaskId === subtask.id ? (
-                        <Input value={subtask.text} onChange={(e) => editSubtask(task.id, subtask.id, e.target.value)} onBlur={() => setEditingSubtaskId(null)} autoFocus size="sm" />
+                        <Input value={subtask.text} onChange={(e) => editSubtask(task.id, subtask.id, e.target.value)} onKeyDown={(e) => e.key === "Enter" && setEditingSubtaskId(null)} autoFocus size="sm" />
                       ) : (
                         <Box display="flex" alignItems="center" flex="1">
                           <Checkbox isChecked={subtask.completed} onChange={() => toggleSubtaskCompletion(task.id, subtask.id)} />
