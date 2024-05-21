@@ -75,9 +75,7 @@ const TodoList = () => {
     if (subtaskInput.trim() === "") return;
     const newSubtask = { id: Date.now(), text: subtaskInput, completed: false };
     setTasks(tasks.map((task) => (task.id === taskId ? { ...task, subtasks: [...task.subtasks, newSubtask] } : task)));
-    console.log("Added new subtask to taskId", taskId, ":", newSubtask);
     setSubtaskInput("");
-    setSelectedTask(null);
   };
 
   const editTask = (taskId, newText) => {
