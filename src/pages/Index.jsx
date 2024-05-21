@@ -40,6 +40,28 @@ const TodoList = () => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
+  const handleDragStart = (e, taskId) => {
+    e.dataTransfer.setData("taskId", taskId);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e, dropTaskId) => {
+    const draggedTaskId = e.dataTransfer.getData("taskId");
+    if (draggedTaskId === dropTaskId) return;
+
+    const draggedTaskIndex = tasks.findIndex((task) => task.id === parseInt(draggedTaskId));
+    const dropTaskIndex = tasks.findIndex((task) => task.id === dropTaskId);
+
+    const reorderedTasks = [...tasks];
+    const [draggedTask] = reorderedTasks.splice(draggedTaskIndex, 1);
+    reorderedTasks.splice(dropTaskIndex, 0, draggedTask);
+
+    setTasks(reorderedTasks);
+  };
+
   const addTask = () => {
     if (taskInput.trim() === "") return;
     const newTask = { id: Date.now(), text: taskInput, completed: false, subtasks: [] };
@@ -116,7 +138,7 @@ const TodoList = () => {
           .slice()
           .sort((a, b) => a.completed - b.completed)
           .map((task) => (
-            <Box key={task.id} width="100%" p={4} borderWidth={1} borderRadius="md">
+            <Box key={task.id} width="100%" p={4} borderWidth={1} borderRadius="md" draggable onDragStart={(e) => handleDragStart(e, task.id)} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, task.id)}>
               <HStack justifyContent="space-between" className="task-item">
                 {editingTaskId === task.id ? (
                   <Input value={task.text} onChange={(e) => editTask(task.id, e.target.value)} onBlur={() => setEditingTaskId(null)} autoFocus />
