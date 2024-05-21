@@ -3,76 +3,77 @@ import { Container, VStack, HStack, Input, Button, Checkbox, Text, IconButton, B
 import { FaPlus, FaTrash, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 const TodoList = () => {
-  const [items, setItems] = useState(() => {
+  const [tasks, setTasks] = useState(() => {
     try {
-      const storedItems = JSON.parse(localStorage.getItem("items"));
-      return storedItems || [];
+      const storedTasks = JSON.parse(localStorage.getItem("tasks"));
+      return storedTasks || [];
     } catch (error) {
-      console.error("Failed to load items from local storage:", error);
+      console.error("Failed to load tasks from local storage:", error);
       return [];
     }
   });
-  const [itemInput, setItemInput] = useState("");
-  const [subitemInput, setSubitemInput] = useState("");
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [expandedItems, setExpandedItems] = useState(() => {
+  const [taskInput, setTaskInput] = useState("");
+  const [subtaskInput, setSubtaskInput] = useState("");
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [expandedTasks, setExpandedTasks] = useState(() => {
     try {
-      const storedItems = JSON.parse(localStorage.getItem("items"));
-      if (storedItems) {
+      const storedTasks = JSON.parse(localStorage.getItem("tasks"));
+      if (storedTasks) {
         const expanded = {};
-        storedItems.forEach((item) => {
-          expanded[item.id] = false;
+        storedTasks.forEach((task) => {
+          expanded[task.id] = false; // Set initial expanded state to false for all tasks
         });
         return expanded;
       }
       return {};
     } catch (error) {
-      console.error("Failed to load items from local storage:", error);
+      console.error("Failed to load tasks from local storage:", error);
       return {};
     }
   });
 
+  // Save tasks to local storage whenever tasks state changes
   useEffect(() => {
-    console.log("Saving items to local storage:", items);
-    localStorage.setItem("items", JSON.stringify(items));
-  }, [items]);
+    console.log("Saving tasks to local storage:", tasks);
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
-  const addItem = () => {
-    if (itemInput.trim() === "") return;
-    const newItem = { id: Date.now(), text: itemInput, completed: false, subitems: [] };
-    setItems([...items, newItem]);
-    setExpandedItems({ ...expandedItems, [newItem.id]: false });
-    console.log("Added new item:", newItem);
-    setItemInput("");
+  const addTask = () => {
+    if (taskInput.trim() === "") return;
+    const newTask = { id: Date.now(), text: taskInput, completed: false, subtasks: [] };
+    setTasks([...tasks, newTask]);
+    setExpandedTasks({ ...expandedTasks, [newTask.id]: false });
+    console.log("Added new task:", newTask);
+    setTaskInput("");
   };
 
-  const addSubitem = (itemId) => {
-    if (subitemInput.trim() === "") return;
-    const newSubitem = { id: Date.now(), text: subitemInput, completed: false };
-    setItems(items.map((item) => (item.id === itemId ? { ...item, subitems: [...item.subitems, newSubitem] } : item)));
-    console.log("Added new subitem to itemId", itemId, ":", newSubitem);
-    setExpandedItems({ ...expandedItems, [itemId]: true });
-    setSubitemInput("");
-    setSelectedItem(null);
+  const addSubtask = (taskId) => {
+    if (subtaskInput.trim() === "") return;
+    const newSubtask = { id: Date.now(), text: subtaskInput, completed: false };
+    setTasks(tasks.map((task) => (task.id === taskId ? { ...task, subtasks: [...task.subtasks, newSubtask] } : task)));
+    console.log("Added new subtask to taskId", taskId, ":", newSubtask);
+    setExpandedTasks({ ...expandedTasks, [taskId]: true });
+    setSubtaskInput("");
+    setSelectedTask(null);
   };
 
-  const toggleItemCompletion = (itemId) => {
-    setItems(items.map((item) => (item.id === itemId ? { ...item, completed: !item.completed } : item)));
+  const toggleTaskCompletion = (taskId) => {
+    setTasks(tasks.map((task) => (task.id === taskId ? { ...task, completed: !task.completed } : task)));
   };
 
-  const toggleSubitemCompletion = (itemId, subitemId) => {
-    setItems(items.map((item) => (item.id === itemId ? { ...item, subitems: item.subitems.map((subitem) => (subitem.id === subitemId ? { ...subitem, completed: !subitem.completed } : subitem)) } : item)));
+  const toggleSubtaskCompletion = (taskId, subtaskId) => {
+    setTasks(tasks.map((task) => (task.id === taskId ? { ...task, subtasks: task.subtasks.map((subtask) => (subtask.id === subtaskId ? { ...subtask, completed: !subtask.completed } : subtask)) } : task)));
   };
 
-  const deleteItem = (itemId) => {
-    setItems(items.filter((item) => item.id !== itemId));
-    const newExpandedItems = { ...expandedItems };
-    delete newExpandedItems[itemId];
-    setExpandedItems(newExpandedItems);
+  const deleteTask = (taskId) => {
+    setTasks(tasks.filter((task) => task.id !== taskId));
+    const newExpandedTasks = { ...expandedTasks };
+    delete newExpandedTasks[taskId];
+    setExpandedTasks(newExpandedTasks);
   };
 
-  const deleteSubitem = (itemId, subitemId) => {
-    setItems(items.map((item) => (item.id === itemId ? { ...item, subitems: item.subitems.filter((subitem) => subitem.id !== subitemId) } : item)));
+  const deleteSubtask = (taskId, subtaskId) => {
+    setTasks(tasks.map((task) => (task.id === taskId ? { ...task, subtasks: task.subtasks.filter((subtask) => subtask.id !== subtaskId) } : task)));
   };
 
   const handleKeyPress = (e, callback) => {
@@ -81,53 +82,53 @@ const TodoList = () => {
     }
   };
 
-  const toggleExpandItem = (itemId) => {
-    setExpandedItems((prevState) => ({
+  const toggleExpandTask = (taskId) => {
+    setExpandedTasks((prevState) => ({
       ...prevState,
-      [itemId]: !prevState[itemId],
+      [taskId]: !prevState[taskId],
     }));
   };
 
-  const totalItems = items.length;
-  const completedItems = items.filter((item) => item.completed).length;
-  const progress = totalItems === 0 ? 0 : (completedItems / totalItems) * 100;
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter((task) => task.completed).length;
+  const progress = totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 100;
 
   return (
     <Container centerContent maxW="container.md" py={8}>
       <VStack spacing={4} width="100%">
         <Progress value={progress} width="100%" mb={4} />
         <HStack width="100%">
-          <Input placeholder="Add a new item" value={itemInput} onChange={(e) => setItemInput(e.target.value)} onKeyDown={(e) => handleKeyPress(e, addItem)} />
-          <IconButton aria-label="Add Item" icon={<FaPlus />} onClick={addItem} />
+          <Input placeholder="Add a new task" value={taskInput} onChange={(e) => setTaskInput(e.target.value)} onKeyDown={(e) => handleKeyPress(e, addTask)} />
+          <IconButton aria-label="Add Task" icon={<FaPlus />} onClick={addTask} />
         </HStack>
-        {[...items]
+        {[...tasks]
           .sort((a, b) => a.completed - b.completed)
-          .map((item) => (
-            <Box key={item.id} width="100%" p={4} borderWidth={1} borderRadius="md">
-              <HStack justifyContent="space-between" className="item-item">
-                <Checkbox isChecked={item.completed} onChange={() => toggleItemCompletion(item.id)}>
-                  <Text as={item.completed ? "s" : ""}>{item.text}</Text>
+          .map((task) => (
+            <Box key={task.id} width="100%" p={4} borderWidth={1} borderRadius="md">
+              <HStack justifyContent="space-between" className="task-item">
+                <Checkbox isChecked={task.completed} onChange={() => toggleTaskCompletion(task.id)}>
+                  <Text as={task.completed ? "s" : ""}>{task.text}</Text>
                 </Checkbox>
                 <HStack>
-                  <IconButton aria-label="Add Subitem" icon={<FaPlus />} size="sm" onClick={() => setSelectedItem(item.id)} />
-                  <IconButton aria-label="Toggle Subitems" icon={expandedItems[item.id] ? <FaChevronUp /> : <FaChevronDown />} size="sm" onClick={() => toggleExpandItem(item.id)} />
-                  <IconButton aria-label="Delete Item" icon={<FaTrash />} size="sm" className="delete-button" onClick={() => deleteItem(item.id)} />
+                  <IconButton aria-label="Add Subtask" icon={<FaPlus />} size="sm" onClick={() => setSelectedTask(task.id)} />
+                  <IconButton aria-label="Toggle Subtasks" icon={expandedTasks[task.id] ? <FaChevronUp /> : <FaChevronDown />} size="sm" onClick={() => toggleExpandTask(task.id)} />
+                  <IconButton aria-label="Delete Task" icon={<FaTrash />} size="sm" className="delete-button" onClick={() => deleteTask(task.id)} />
                 </HStack>
               </HStack>
-              {item.id === selectedItem && (
+              {task.id === selectedTask && (
                 <HStack mt={2}>
-                  <Input placeholder="Add a subitem" value={subitemInput} onChange={(e) => setSubitemInput(e.target.value)} onKeyDown={(e) => handleKeyPress(e, () => addSubitem(item.id))} />
-                  <Button onClick={() => addSubitem(item.id)}>Add</Button>
+                  <Input placeholder="Add a subtask" value={subtaskInput} onChange={(e) => setSubtaskInput(e.target.value)} onKeyDown={(e) => handleKeyPress(e, () => addSubtask(task.id))} />
+                  <Button onClick={() => addSubtask(task.id)}>Add</Button>
                 </HStack>
               )}
-              {expandedItems[item.id] && (
+              {expandedTasks[task.id] && (
                 <VStack mt={2} pl={4} alignItems="start">
-                  {item.subitems.map((subitem) => (
-                    <HStack key={subitem.id} justifyContent="space-between" width="100%" className="subitem-item">
-                      <Checkbox isChecked={subitem.completed} onChange={() => toggleSubitemCompletion(item.id, subitem.id)}>
-                        <Text as={subitem.completed ? "s" : ""}>{subitem.text}</Text>
+                  {task.subtasks.map((subtask) => (
+                    <HStack key={subtask.id} justifyContent="space-between" width="100%" className="subtask-item">
+                      <Checkbox isChecked={subtask.completed} onChange={() => toggleSubtaskCompletion(task.id, subtask.id)}>
+                        <Text as={subtask.completed ? "s" : ""}>{subtask.text}</Text>
                       </Checkbox>
-                      <IconButton aria-label="Delete Subitem" icon={<FaTrash />} size="sm" className="delete-button" onClick={() => deleteSubitem(item.id, subitem.id)} />
+                      <IconButton aria-label="Delete Subtask" icon={<FaTrash />} size="sm" className="delete-button" onClick={() => deleteSubtask(task.id, subtask.id)} />
                     </HStack>
                   ))}
                 </VStack>
@@ -136,8 +137,8 @@ const TodoList = () => {
           ))}
       </VStack>
       <style>{`
-        .item-item:hover .delete-button,
-        .subitem-item:hover .delete-button {
+        .task-item:hover .delete-button,
+        .subtask-item:hover .delete-button {
           visibility: visible;
         }
         .delete-button {
