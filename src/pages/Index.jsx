@@ -67,9 +67,10 @@ const TodoList = () => {
   const editSubtask = (taskId, subtaskId, newText) => {
     setTasks(tasks.map((task) => (task.id === taskId ? { ...task, subtasks: task.subtasks.map((subtask) => (subtask.id === subtaskId ? { ...subtask, text: newText } : subtask)) } : task)));
     setEditingSubtaskId(null);
-    const toggleTaskCompletion = (taskId) => {
-      setTasks(tasks.map((task) => (task.id === taskId ? { ...task, completed: !task.completed } : task)));
-    };
+  };
+
+  const toggleTaskCompletion = (taskId) => {
+    setTasks(tasks.map((task) => (task.id === taskId ? { ...task, completed: !task.completed } : task)));
   };
 
   const toggleSubtaskCompletion = (taskId, subtaskId) => {
@@ -118,7 +119,7 @@ const TodoList = () => {
             <Box key={task.id} width="100%" p={4} borderWidth={1} borderRadius="md">
               <HStack justifyContent="space-between" className="task-item">
                 {editingTaskId === task.id ? (
-                  <Input value={task.text} onChange={(e) => editTask(task.id, e.target.value)} onBlur={() => setEditingTaskId(null)} autoFocus />
+                  <Input value={task.text} onChange={(e) => editTask(task.id, e.target.value)} onBlur={() => setEditingTaskId(null)} autoFocus size="sm" />
                 ) : (
                   <Checkbox isChecked={task.completed} onChange={() => toggleTaskCompletion(task.id)}>
                     <Text as={task.completed ? "s" : ""} onDoubleClick={() => setEditingTaskId(task.id)}>
@@ -143,7 +144,7 @@ const TodoList = () => {
                   {task.subtasks.map((subtask) => (
                     <HStack key={subtask.id} justifyContent="space-between" width="100%" className="subtask-item">
                       {editingSubtaskId === subtask.id ? (
-                        <Input value={subtask.text} onChange={(e) => editSubtask(task.id, subtask.id, e.target.value)} onBlur={() => setEditingSubtaskId(null)} autoFocus />
+                        <Input value={subtask.text} onChange={(e) => editSubtask(task.id, subtask.id, e.target.value)} onBlur={() => setEditingSubtaskId(null)} autoFocus size="sm" />
                       ) : (
                         <Checkbox isChecked={subtask.completed} onChange={() => toggleSubtaskCompletion(task.id, subtask.id)}>
                           <Text as={subtask.completed ? "s" : ""} onDoubleClick={() => setEditingSubtaskId(subtask.id)}>
