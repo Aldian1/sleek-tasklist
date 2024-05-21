@@ -100,38 +100,40 @@ const TodoList = () => {
           <Input placeholder="Add a new task" value={taskInput} onChange={(e) => setTaskInput(e.target.value)} onKeyDown={(e) => handleKeyPress(e, addTask)} />
           <IconButton aria-label="Add Task" icon={<FaPlus />} onClick={addTask} />
         </HStack>
-        {tasks.map((task) => (
-          <Box key={task.id} width="100%" p={4} borderWidth={1} borderRadius="md">
-            <HStack justifyContent="space-between" className="task-item">
-              <Checkbox isChecked={task.completed} onChange={() => toggleTaskCompletion(task.id)}>
-                <Text as={task.completed ? "s" : ""}>{task.text}</Text>
-              </Checkbox>
-              <HStack>
-                <IconButton aria-label="Add Subtask" icon={<FaPlus />} size="sm" onClick={() => setSelectedTask(task.id)} />
-                <IconButton aria-label="Toggle Subtasks" icon={expandedTasks[task.id] ? <FaChevronUp /> : <FaChevronDown />} size="sm" onClick={() => toggleExpandTask(task.id)} />
-                <IconButton aria-label="Delete Task" icon={<FaTrash />} size="sm" className="delete-button" onClick={() => deleteTask(task.id)} />
+        {[...tasks]
+          .sort((a, b) => a.completed - b.completed)
+          .map((task) => (
+            <Box key={task.id} width="100%" p={4} borderWidth={1} borderRadius="md">
+              <HStack justifyContent="space-between" className="task-item">
+                <Checkbox isChecked={task.completed} onChange={() => toggleTaskCompletion(task.id)}>
+                  <Text as={task.completed ? "s" : ""}>{task.text}</Text>
+                </Checkbox>
+                <HStack>
+                  <IconButton aria-label="Add Subtask" icon={<FaPlus />} size="sm" onClick={() => setSelectedTask(task.id)} />
+                  <IconButton aria-label="Toggle Subtasks" icon={expandedTasks[task.id] ? <FaChevronUp /> : <FaChevronDown />} size="sm" onClick={() => toggleExpandTask(task.id)} />
+                  <IconButton aria-label="Delete Task" icon={<FaTrash />} size="sm" className="delete-button" onClick={() => deleteTask(task.id)} />
+                </HStack>
               </HStack>
-            </HStack>
-            {task.id === selectedTask && (
-              <HStack mt={2}>
-                <Input placeholder="Add a subtask" value={subtaskInput} onChange={(e) => setSubtaskInput(e.target.value)} onKeyDown={(e) => handleKeyPress(e, () => addSubtask(task.id))} />
-                <Button onClick={() => addSubtask(task.id)}>Add</Button>
-              </HStack>
-            )}
-            {expandedTasks[task.id] && (
-              <VStack mt={2} pl={4} alignItems="start">
-                {task.subtasks.map((subtask) => (
-                  <HStack key={subtask.id} justifyContent="space-between" width="100%" className="subtask-item">
-                    <Checkbox isChecked={subtask.completed} onChange={() => toggleSubtaskCompletion(task.id, subtask.id)}>
-                      <Text as={subtask.completed ? "s" : ""}>{subtask.text}</Text>
-                    </Checkbox>
-                    <IconButton aria-label="Delete Subtask" icon={<FaTrash />} size="sm" className="delete-button" onClick={() => deleteSubtask(task.id, subtask.id)} />
-                  </HStack>
-                ))}
-              </VStack>
-            )}
-          </Box>
-        ))}
+              {task.id === selectedTask && (
+                <HStack mt={2}>
+                  <Input placeholder="Add a subtask" value={subtaskInput} onChange={(e) => setSubtaskInput(e.target.value)} onKeyDown={(e) => handleKeyPress(e, () => addSubtask(task.id))} />
+                  <Button onClick={() => addSubtask(task.id)}>Add</Button>
+                </HStack>
+              )}
+              {expandedTasks[task.id] && (
+                <VStack mt={2} pl={4} alignItems="start">
+                  {task.subtasks.map((subtask) => (
+                    <HStack key={subtask.id} justifyContent="space-between" width="100%" className="subtask-item">
+                      <Checkbox isChecked={subtask.completed} onChange={() => toggleSubtaskCompletion(task.id, subtask.id)}>
+                        <Text as={subtask.completed ? "s" : ""}>{subtask.text}</Text>
+                      </Checkbox>
+                      <IconButton aria-label="Delete Subtask" icon={<FaTrash />} size="sm" className="delete-button" onClick={() => deleteSubtask(task.id, subtask.id)} />
+                    </HStack>
+                  ))}
+                </VStack>
+              )}
+            </Box>
+          ))}
       </VStack>
       <style>{`
         .task-item:hover .delete-button,
