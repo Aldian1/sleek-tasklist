@@ -106,8 +106,37 @@ const TodoList = () => {
   const completedTasks = tasks.filter((task) => task.completed).length;
   const progress = totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 100;
 
+  const loadData = () => {
+    try {
+      const storedTasks = JSON.parse(localStorage.getItem("tasks"));
+      if (storedTasks) {
+        setTasks(storedTasks);
+        const expanded = {};
+        storedTasks.forEach((task) => {
+          expanded[task.id] = false;
+        });
+        setExpandedTasks(expanded);
+      }
+    } catch (error) {
+      console.error("Failed to load tasks from local storage:", error);
+    }
+  };
+
+  const saveData = () => {
+    try {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      console.log("Tasks saved to local storage:", tasks);
+    } catch (error) {
+      console.error("Failed to save tasks to local storage:", error);
+    }
+  };
+
   return (
     <Container centerContent maxW="container.md" py={8}>
+      <HStack spacing={4} mb={4}>
+        <Button onClick={loadData}>Load Data</Button>
+        <Button onClick={saveData}>Save Data</Button>
+      </HStack>
       <VStack spacing={4} width="100%">
         <Progress value={progress} width="100%" mb={4} />
         <HStack width="100%">
