@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Container, VStack, HStack, Input, Button, Checkbox, Text, IconButton, Box, Progress } from "@chakra-ui/react";
+import { motion } from "framer-motion";
 import { FaPlus, FaTrash, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 const TodoList = () => {
@@ -116,7 +117,7 @@ const TodoList = () => {
         {[...tasks]
           .sort((a, b) => a.completed - b.completed)
           .map((task) => (
-            <Box key={task.id} width="100%" p={4} borderWidth={1} borderRadius="md">
+            <Box as={motion.div} key={task.id} width="100%" p={4} borderWidth={1} borderRadius="md" initial={{ opacity: 1 }} animate={{ opacity: task.completed ? 0.5 : 1 }} transition={{ duration: 0.5 }}>
               <HStack justifyContent="space-between" className="task-item">
                 {editingTaskId === task.id ? (
                   <Input value={task.text} onChange={(e) => editTask(task.id, e.target.value)} onKeyDown={(e) => e.key === "Enter" && setEditingTaskId(null)} autoFocus size="sm" />
