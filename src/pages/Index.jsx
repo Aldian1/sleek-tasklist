@@ -133,10 +133,6 @@ const TodoList = () => {
 
   return (
     <Container centerContent maxW="container.md" py={8}>
-      <HStack spacing={4} mb={4}>
-        <Button onClick={loadData}>Load Data</Button>
-        <Button onClick={saveData}>Save Data</Button>
-      </HStack>
       <VStack spacing={4} width="100%">
         <Progress value={progress} width="100%" mb={4} />
         <HStack width="100%">

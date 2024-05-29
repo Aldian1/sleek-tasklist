@@ -7,9 +7,6 @@ function Navigation() {
       <ChakraLink as={Link} to="/">
         Home
       </ChakraLink>
-      <ChakraLink as={Link} to="/file-management">
-        File Management
-      </ChakraLink>
     </HStack>
   );
 }
